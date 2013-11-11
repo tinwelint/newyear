@@ -16,7 +16,7 @@ public class SoundChain
         this.sounds = sounds;
     }
     
-    public SoundChain chain( Sound sound )
+    public SoundChain add( Sound sound )
     {
         List<Sound> newSounds = new ArrayList<>( sounds );
         newSounds.add( sound );

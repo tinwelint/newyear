@@ -1,10 +1,12 @@
 package org.tinwelint.newyear;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class DownCounter extends Thread
 {
-    private final Listener listener;
+    private final List<Listener> listeners = new ArrayList<>();
     private boolean halted;
 
     public interface Listener
@@ -14,7 +16,7 @@ public class DownCounter extends Thread
     
     public DownCounter( Listener listener )
     {
-        this.listener = listener;
+        this.listeners.add( listener );
         start();
     }
     
@@ -36,10 +38,18 @@ public class DownCounter extends Thread
         }
     }
     
+    public void addListener( Listener listener )
+    {
+        this.listeners.add( listener );
+    }
+    
     private void check()
     {
         RemainingTime remainingTime = RemainingTime.ofDay( new Date() );
-        listener.timeRemaining( remainingTime );
+        for ( Listener listener : listeners )
+        {
+            listener.timeRemaining( remainingTime );
+        }
     }
 
     private void waitAWhile()
