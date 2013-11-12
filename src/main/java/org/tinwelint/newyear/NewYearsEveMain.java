@@ -59,9 +59,9 @@ public class NewYearsEveMain
 //                    return;
 //                }
                 
-                if ( remainingTime.seconds() < 20 )
+                if ( remainingTime.hours() == 0 && remainingTime.minutes() == 0 )
                 {
-                    if ( remainingTime.hours() == 0 && remainingTime.minutes() == 0 )
+                    if ( remainingTime.seconds() < 20 )
                     {
                         playCountdown( remainingTime );
                     }

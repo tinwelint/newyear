@@ -48,7 +48,7 @@ public class LittleWindow extends JFrame
     {
         getContentPane().setLayout( new FlowLayout() );
         
-        JButton sayButton = new JButton( "Hur långt kvar?" );
+        JButton sayButton = new JButton( "Säg hur långt det är kvar till nyår" );
         sayButton.addActionListener( new ActionListener()
         {
             @Override
