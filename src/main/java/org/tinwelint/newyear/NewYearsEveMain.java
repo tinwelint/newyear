@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.tinwelint.newyear.DownCounter.Listener;
+import static org.tinwelint.newyear.SoundChain.startChain;
 
 public class NewYearsEveMain
 {
@@ -58,9 +59,12 @@ public class NewYearsEveMain
 //                    return;
 //                }
                 
-                if ( remainingTime.hours() == 0 && remainingTime.minutes() == 0 && remainingTime.seconds() < 20 )
+                if ( remainingTime.seconds() < 20 )
                 {
-                    playCountdown( remainingTime );
+                    if ( remainingTime.hours() == 0 && remainingTime.minutes() == 0 )
+                    {
+                        playCountdown( remainingTime );
+                    }
                 }
                 else if ( lastAudibleTime.get() == null ||
                         remainingTime.minuteDiff( lastAudibleTime.get() ) == nextMinuteDiff )
@@ -76,7 +80,12 @@ public class NewYearsEveMain
             {
                 if ( lastCountDownSecond == null || lastCountDownSecond.intValue() != remainingTime.seconds() )
                 {
-                    SoundChain.startChain().add( soundRepository.oneBasedSound( remainingTime.seconds() ) ).play();
+                    SoundChain chain = startChain();
+                    // TODO play all happynewyear sounds in parallell
+                    chain = remainingTime.seconds() == 0 ?
+                            chain.add( soundRepository.word( "happynewyear" ) ) :
+                            chain.add( soundRepository.oneBasedSound( remainingTime.seconds() ) );
+                    chain.play();
                     lastCountDownSecond = remainingTime.seconds();
                 }
             }

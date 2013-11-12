@@ -23,7 +23,7 @@ public class RemainingTime
             hoursLeft++;
         }
         int minutesLeft = 60-minuteOfHour;
-        int secondsLeft = 60-calendar.get( Calendar.SECOND );
+        int secondsLeft = 59-calendar.get( Calendar.SECOND );
         
         // 23:00 ==> 1h, 0m
         // 23:01 ==> 0h, 59m
