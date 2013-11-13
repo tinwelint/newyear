@@ -3,9 +3,7 @@ package org.tinwelint.newyear;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -44,10 +42,10 @@ public class SoundRepository
     };
     
     private final Random random = new Random();
-    private final Map<Integer,List<Sound>> tenBasedSounds;
-    private final Map<Integer,List<Sound>> oneBasedSounds;
-    private final Map<String,List<Sound>> wordSounds;
-    private final List<Sound> missingSounds;
+    private final Map<Integer,SoundSet> tenBasedSounds;
+    private final Map<Integer,SoundSet> oneBasedSounds;
+    private final Map<String,SoundSet> wordSounds;
+    private final SoundSet missingSounds;
     
     public SoundRepository( File baseDirectory )
     {
@@ -64,21 +62,22 @@ public class SoundRepository
         }
     }
     
-    private List<Sound> loadSounds( File directory )
+    private SoundSet loadSounds( File directory )
             throws LineUnavailableException, IOException, UnsupportedAudioFileException
     {
-        List<Sound> sounds = new ArrayList<>();
+        SoundSet sounds = new SoundSet( random );
         for ( File soundFile : directory.listFiles() )
         {
             sounds.add( loadSound( soundFile ) );
         }
+        sounds.doneAdding();
         return sounds;
     }
 
-    private <KEY> Map<KEY,List<Sound>> loadSoundBank( File directory, Function<File,KEY> converter )
+    private <KEY> Map<KEY,SoundSet> loadSoundBank( File directory, Function<File,KEY> converter )
             throws LineUnavailableException, IOException, UnsupportedAudioFileException
     {
-        Map<KEY,List<Sound>> target = new HashMap<>();
+        Map<KEY,SoundSet> target = new HashMap<>();
         if ( !directory.exists() )
         {
             return target;
@@ -113,18 +112,14 @@ public class SoundRepository
         return randomSound( wordSounds, word, "word" );
     }
 
-    private <KEY> Sound randomSound( Map<KEY,List<Sound>> source, KEY key, String description )
+    private <KEY> Sound randomSound( Map<KEY,SoundSet> source, KEY key, String description )
     {
-        List<Sound> sounds = source.get( key );
-        if ( sounds == null || sounds.isEmpty() )
+        SoundSet sounds = source.get( key );
+        Sound sound = sounds.random();
+        if ( sound == null )
         {
-            return randomSound( missingSounds );
+            sound = missingSounds.random();
         }
-        return randomSound( sounds );
-    }
-
-    private Sound randomSound( List<Sound> sounds )
-    {
-        return sounds.get( random.nextInt( sounds.size() ) );
+        return sound;
     }
 }
