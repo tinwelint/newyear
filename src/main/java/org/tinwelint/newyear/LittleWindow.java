@@ -10,6 +10,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.tinwelint.newyear.DownCounter.Listener;
 
@@ -17,13 +20,20 @@ public class LittleWindow extends JFrame
 {
     private final AtomicReference<RemainingTime> lastAudibleTime;
     private JLabel timeLabel;
+    private final DynamicConfiguration config;
 
-    public LittleWindow( AtomicReference<RemainingTime> lastAudibleTime, DownCounter downCounter )
+    public LittleWindow( AtomicReference<RemainingTime> lastAudibleTime, DownCounter downCounter,
+            DynamicConfiguration config )
     {
         super( "Snart e det nytt år" );
         this.lastAudibleTime = lastAudibleTime;
+        this.config = config;
         init();
         registerTimeListener( downCounter );
+    }
+    
+    public void showIt()
+    {
         setVisible( true );
     }
 
@@ -48,6 +58,7 @@ public class LittleWindow extends JFrame
     {
         getContentPane().setLayout( new FlowLayout() );
         
+        // "Say" button
         JButton sayButton = new JButton( "Säg hur långt det är kvar till nyår" );
         sayButton.addActionListener( new ActionListener()
         {
@@ -59,9 +70,25 @@ public class LittleWindow extends JFrame
         } );
         getContentPane().add( sayButton );
         
+        // Time
         timeLabel = new JLabel();
         timeLabel.setFont( timeLabel.getFont().deriveFont( 50f ) );
         getContentPane().add( timeLabel );
+        
+        // Cross-fade slider
+        final JSlider crossfadeSlider = new JSlider( 0, 10, (int)(config.getSecondsCrossFade()*20) );
+        crossfadeSlider.addChangeListener( new ChangeListener()
+        {
+            @Override
+            public void stateChanged( ChangeEvent e )
+            {
+                if ( !crossfadeSlider.getValueIsAdjusting() )
+                {
+                    config.setSecondsCrossFade( crossfadeSlider.getValue()/20.0f );
+                }
+            }
+        } );
+        getContentPane().add( crossfadeSlider );
         
         addWindowListener( new WindowAdapter()
         {

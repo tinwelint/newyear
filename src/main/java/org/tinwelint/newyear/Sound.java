@@ -2,6 +2,7 @@ package org.tinwelint.newyear;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -16,11 +17,28 @@ public class Sound
 {
     public interface Listener
     {
+        void onProgress( float secondsLeft );
+        
         void onSoundEnded();
     }
     
+    public static abstract class ListenerAdapter implements Listener
+    {
+        @Override
+        public void onProgress( float secondsLeft )
+        {   // Do nothing
+        }
+        
+        @Override
+        public void onSoundEnded()
+        {   // Do nothing
+        }
+    }
+    
     private final Clip clip;
+    private final float frameRate;
     private final File soundFile;
+    private final AtomicBoolean playing = new AtomicBoolean();
     
     public Sound( File soundFile ) throws LineUnavailableException, IOException, UnsupportedAudioFileException
     {
@@ -29,6 +47,7 @@ public class Sound
         try ( AudioInputStream audioInput = AudioSystem.getAudioInputStream( soundFile ) )
         {
             clip.open( audioInput );
+            frameRate = clip.getFormat().getFrameRate();
         }
     }
     
@@ -44,10 +63,37 @@ public class Sound
                     events.onSoundEnded();
                     clip.removeLineListener( this );
                     clip.setFramePosition( 0 );
+                    playing.set( false );
                 }
             }
         } );
+        
+        Thread progressThread = new Thread()
+        {
+            @Override
+            public void run()
+            {
+                while ( playing.get() )
+                {
+                    int framesLeft = clip.getFrameLength() - clip.getFramePosition();
+                    float secondsLeft = framesLeft / frameRate;
+                    events.onProgress( secondsLeft );
+                    
+                    try
+                    {
+                        Thread.sleep( 100 );
+                    }
+                    catch ( InterruptedException e )
+                    {
+                        break;
+                    }
+                }
+            }
+        };
+        
+        playing.set( true );
         clip.start();
+        progressThread.start();
     }
     
     @Override

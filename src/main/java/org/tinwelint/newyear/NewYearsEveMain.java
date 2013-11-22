@@ -16,11 +16,12 @@ public class NewYearsEveMain
     {
         SoundRepository soundRepository = new SoundRepository( new File( "audio/repository" ) );
         
+        DynamicConfiguration config = new DynamicConfiguration();
         AtomicReference<RemainingTime> lastAudibleTime = new AtomicReference<>();
-        Listener timeListener = playSoundByTimeRemaining( soundRepository, lastAudibleTime );
+        Listener timeListener = playSoundByTimeRemaining( soundRepository, lastAudibleTime, config );
         DownCounter downCounter = new DownCounter( timeListener );
         
-        LittleWindow window = new LittleWindow( lastAudibleTime, downCounter );
+        new LittleWindow( lastAudibleTime, downCounter, config ).showIt();
         
         System.out.println( "Type 'exit' and ENTER to exit..." );
         BufferedReader reader = new BufferedReader( new InputStreamReader( System.in ) );
@@ -43,7 +44,7 @@ public class NewYearsEveMain
     }
 
     private static Listener playSoundByTimeRemaining( final SoundRepository soundRepository,
-            final AtomicReference<RemainingTime> lastAudibleTime )
+            final AtomicReference<RemainingTime> lastAudibleTime, final DynamicConfiguration config )
     {
         return new Listener()
         {
@@ -80,7 +81,7 @@ public class NewYearsEveMain
             {
                 if ( lastCountDownSecond == null || lastCountDownSecond.intValue() != remainingTime.seconds() )
                 {
-                    SoundChain chain = startChain();
+                    SoundChain chain = startChain( config );
                     // TODO play all happynewyear sounds in parallell
                     chain = remainingTime.seconds() == 0 ?
                             chain.add( soundRepository.word( "happynewyear" ) ) :
@@ -92,7 +93,7 @@ public class NewYearsEveMain
 
             private void playSound( RemainingTime remainingTime )
             {
-                SoundChain chain = SoundChain.startChain();
+                SoundChain chain = SoundChain.startChain( config );
                 chain = chain.add( soundRepository.word( "nowitis" ) );
                 chain = addHours( remainingTime, chain );
                 chain = addMinutes( remainingTime, chain );
