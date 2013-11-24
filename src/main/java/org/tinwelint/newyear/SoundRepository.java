@@ -10,8 +10,6 @@ import java.util.Random;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import org.tinwelint.newyear.helpers.Function;
-
 public class SoundRepository
 {
     private static final FileFilter DIRECTORIES = new FileFilter()
@@ -23,21 +21,26 @@ public class SoundRepository
         }
     };
     
-    private static final Function<File,Integer> NUMBERS = new Function<File,Integer>()
+    private interface StringConverter<TO>
+    {
+        TO convert( String string );
+    }
+    
+    private static final StringConverter<Integer> NUMBERS = new StringConverter<Integer>()
     {
         @Override
-        public Integer apply( File from )
+        public Integer convert( String string )
         {
-            return Integer.parseInt( from.getName() );
+            return Integer.parseInt( string );
         }
     };
     
-    private static final Function<File,String> WORDS = new Function<File,String>()
+    private static final StringConverter<String> WORDS = new StringConverter<String>()
     {
         @Override
-        public String apply( File from )
+        public String convert( String string )
         {
-            return from.getName();
+            return string;
         }
     };
     
@@ -68,13 +71,13 @@ public class SoundRepository
         SoundSet sounds = new SoundSet( random );
         for ( File soundFile : directory.listFiles() )
         {
-            sounds.add( loadSound( soundFile ) );
+            sounds.add( new Sound( soundFile ) );
         }
         sounds.doneAdding();
         return sounds;
     }
 
-    private <KEY> Map<KEY,SoundSet> loadSoundBank( File directory, Function<File,KEY> converter )
+    private <KEY> Map<KEY,SoundSet> loadSoundBank( File directory, StringConverter<KEY> converter )
             throws LineUnavailableException, IOException, UnsupportedAudioFileException
     {
         Map<KEY,SoundSet> target = new HashMap<>();
@@ -84,17 +87,10 @@ public class SoundRepository
         }
         for ( File numberDirectory : directory.listFiles( DIRECTORIES ) )
         {
-            KEY key = converter.apply( numberDirectory );
+            KEY key = converter.convert( numberDirectory.getName() );
             target.put( key, loadSounds( numberDirectory ) );
         }
         return target;
-    }
-
-    private Sound loadSound( File soundFile )
-            throws LineUnavailableException, IOException, UnsupportedAudioFileException
-    {
-        Sound sound = new Sound( soundFile );
-        return sound;
     }
 
     public Sound tenBasedSound( int number ) // e.g. 3 ==> random sound in audio/repository/ten/3
@@ -102,7 +98,7 @@ public class SoundRepository
         return randomSound( tenBasedSounds, number, "ten based" );
     }
 
-    public Sound oneBasedSound( int number ) // e.g. 11 ==> random sound in audio/repository/one/11
+    public Sound oneBasedSound( int number ) // e.g. 5 ==> random sound in audio/repository/one/5
     {
         return randomSound( oneBasedSounds, number, "one based" );
     }

@@ -22,19 +22,6 @@ public class Sound
         void onSoundEnded();
     }
     
-    public static abstract class ListenerAdapter implements Listener
-    {
-        @Override
-        public void onProgress( float secondsLeft )
-        {   // Do nothing
-        }
-        
-        @Override
-        public void onSoundEnded()
-        {   // Do nothing
-        }
-    }
-    
     private final Clip clip;
     private final float frameRate;
     private final File soundFile;

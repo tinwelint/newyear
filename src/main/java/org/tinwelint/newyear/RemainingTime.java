@@ -88,9 +88,4 @@ public class RemainingTime
     {
         return "[" + hours + "h " + minutes + "m " + seconds + "s]";
     }
-    
-    public static RemainingTime ofDay( Date date )
-    {
-        return new RemainingTime( date );
-    }
 }

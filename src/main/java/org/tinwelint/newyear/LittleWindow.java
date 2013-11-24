@@ -3,8 +3,6 @@ package org.tinwelint.newyear;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.swing.JButton;
@@ -58,7 +56,37 @@ public class LittleWindow extends JFrame
     {
         getContentPane().setLayout( new FlowLayout() );
         
-        // "Say" button
+        getContentPane().add( sayButton() );
+        getContentPane().add( timeLabel = timeLabel() );
+        getContentPane().add( crossfadeSlider() );
+        
+        setDefaultCloseOperation( EXIT_ON_CLOSE );
+        this.setBounds( 100, 100, 230, 200 );
+    }
+
+    private JSlider crossfadeSlider()
+    {
+        final JSlider crossfadeSlider = new JSlider( 0, 10, (int)(config.getSecondsCrossFade()*20) );
+        crossfadeSlider.addChangeListener( new ChangeListener()
+        {
+            @Override
+            public void stateChanged( ChangeEvent e )
+            {
+                config.setSecondsCrossFade( crossfadeSlider.getValue()/20.0f );
+            }
+        } );
+        return crossfadeSlider;
+    }
+
+    private JLabel timeLabel()
+    {
+        JLabel label = new JLabel();
+        label.setFont( label.getFont().deriveFont( 50f ) );
+        return label;
+    }
+
+    private JButton sayButton()
+    {
         JButton sayButton = new JButton( "Säg hur långt det är kvar till nyår" );
         sayButton.addActionListener( new ActionListener()
         {
@@ -68,36 +96,6 @@ public class LittleWindow extends JFrame
                 lastAudibleTime.set( null );
             }
         } );
-        getContentPane().add( sayButton );
-        
-        // Time
-        timeLabel = new JLabel();
-        timeLabel.setFont( timeLabel.getFont().deriveFont( 50f ) );
-        getContentPane().add( timeLabel );
-        
-        // Cross-fade slider
-        final JSlider crossfadeSlider = new JSlider( 0, 10, (int)(config.getSecondsCrossFade()*20) );
-        crossfadeSlider.addChangeListener( new ChangeListener()
-        {
-            @Override
-            public void stateChanged( ChangeEvent e )
-            {
-                if ( !crossfadeSlider.getValueIsAdjusting() )
-                {
-                    config.setSecondsCrossFade( crossfadeSlider.getValue()/20.0f );
-                }
-            }
-        } );
-        getContentPane().add( crossfadeSlider );
-        
-        addWindowListener( new WindowAdapter()
-        {
-            @Override
-            public void windowClosing( WindowEvent e )
-            {
-                System.exit( 0 );
-            }
-        } );
-        this.setBounds( 100, 100, 230, 200 );
+        return sayButton;
     }
 }

@@ -1,28 +1,22 @@
 package org.tinwelint.newyear;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.tinwelint.newyear.Sound.ListenerAdapter;
-
 public class SoundChain
 {
-    private final List<Sound> sounds;
+    private final List<Sound> sounds = new ArrayList<>();
     private final DynamicConfiguration config;
     
-    private SoundChain( List<Sound> sounds, DynamicConfiguration config )
+    public SoundChain( DynamicConfiguration config )
     {
-        this.sounds = sounds;
         this.config = config;
     }
     
-    public SoundChain add( Sound sound )
+    public void add( Sound sound )
     {
-        List<Sound> newSounds = new ArrayList<>( sounds );
-        newSounds.add( sound );
-        return new SoundChain( newSounds, config );
+        sounds.add( sound );
     }
 
     public void play()
@@ -34,7 +28,7 @@ public class SoundChain
         }
     }
     
-    private class ChainListener extends ListenerAdapter
+    private class ChainListener implements Sound.Listener
     {
         private volatile boolean fired;
         private final Iterator<Sound> sounds;
@@ -62,16 +56,5 @@ public class SoundChain
         {
             onProgress( 0 );
         }
-    }
-    
-    @Override
-    public String toString()
-    {
-        return "sound chain" + sounds;
-    }
-    
-    public static SoundChain startChain( DynamicConfiguration config )
-    {
-        return new SoundChain( Collections.<Sound>emptyList(), config );
     }
 }

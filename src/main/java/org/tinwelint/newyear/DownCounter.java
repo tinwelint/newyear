@@ -45,7 +45,7 @@ public class DownCounter extends Thread
     
     private void check()
     {
-        RemainingTime remainingTime = RemainingTime.ofDay( new Date() );
+        RemainingTime remainingTime = new RemainingTime( new Date() );
         for ( Listener listener : listeners )
         {
             listener.timeRemaining( remainingTime );
