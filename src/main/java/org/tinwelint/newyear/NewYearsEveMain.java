@@ -44,7 +44,7 @@ public class NewYearsEveMain
                     }
                 }
                 else if ( lastAudibleTime.get() == null ||
-                        remainingTime.minuteDiff( lastAudibleTime.get() ) == nextMinuteDiff )
+                        remainingTime.minuteDiff( lastAudibleTime.get() ) >= nextMinuteDiff )
                 {
                     playTimeLeft( remainingTime );
                     nextMinuteDiff = random.nextInt( 7 )+1;
